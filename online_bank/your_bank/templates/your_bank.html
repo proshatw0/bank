@@ -1,0 +1,73 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ваш банк</title>
+    <link rel="stylesheet" href="{% static 'css/reset.css' %}">
+    <link rel="stylesheet" href="{% static 'css/normalize.css' %}">
+    <link rel="stylesheet" href="{% static 'css/start_back.css' %}">
+    <link rel="stylesheet" href="{% static 'your_bank/css/style.css' %}">
+</head>
+<body>
+    <div class="header">
+        <div class="header-area">
+            <div class="logo-area">
+                <img class="logo" src="{% static 'images/logo.png' %}" alt="logo">
+                <h1 class="logo-text">RaccoonBank</h1>
+            </div>
+            <div class="profile-area">
+                <h2 class="name"></h2>
+                <button class="profile-button">
+                <img class="profile-img" src="{% static 'your_bank/images/profile_icon.png' %}" alt="Картинка профиля">
+                </button>
+            </div>
+        </div>
+        <div class="link-container">
+            <p class="link active-link">Главная</p>
+            <a href="" class="link">Операции</a>
+            <a href="" class="link">Платежи</a>
+            <a href="" class="link">Обращения</a>
+        </div>
+    </div>
+    <div class="main">
+        <div class="main-area">
+            <div class="debit-cards">
+                <h2 class="debit-text">Дебетовые карты</h2>
+                <div class="debit-card-contaner">
+                    <button class="debit-card">
+                        <div class="circle debit-circle"></div>
+                        <h2 class="balance">47895,46 ₽</h2>
+                        <div class="card-info">
+                            <p class="type-card">polosun</p>
+                            <p class="number-card">7612</p>
+                        </div>
+                    </button>
+                </div>
+                <button class="add-card" id="add-card">
+                    <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <g filter="url(#filter0_f_224_3)">
+                        <rect x="4" y="4" width="40" height="40" rx="20" fill="black" fill-opacity="0.22"/>
+                        </g>
+                        <rect x="4" y="4" width="39.3443" height="38.0952" rx="19.0476" fill="#428BF9" fill-opacity="0.74902"/>
+                        <path d="M12 24H36" stroke="white" stroke-width="4" stroke-linecap="round"/>
+                        <path d="M24 36V12" stroke="white" stroke-width="4" stroke-linecap="round"/>
+                        <defs>
+                        <filter id="filter0_f_224_3" x="0" y="0" width="48" height="48" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+                        <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+                        <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"/>
+                        <feGaussianBlur stdDeviation="2" result="effect1_foregroundBlur_224_3"/>
+                        </filter>
+                        </defs>
+                    </svg>
+                </button> 
+            </div>
+        </div>
+    </div>
+
+    <script src="{% static 'your_bank/js/script.js' %}"></script>
+    <script src="{% static 'js/start_back.js' %}"></script>
+</body>
+</html>

@@ -1,0 +1,85 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Регистрация аккаунта</title>
+    <link rel="stylesheet" href="{% static 'css/reset.css' %}">
+    <link rel="stylesheet" href="{% static 'css/normalize.css' %}">
+    <link rel="stylesheet" href="{% static 'css/start_back.css' %}">
+    <link rel="stylesheet" href="{% static 'login/css/style.css' %}">
+</head>
+<body class="registration-body">
+    <div class="area">
+        <h1>RaccoonBank</h1>
+        <img class="logo" src="{% static 'images/logo.png' %}" alt="logo">
+        <div class="login-area registration-area">
+            <h1 class="login-margin">Регистрация</h1>
+            <form method="post" id="registration-form">
+                {% csrf_token %}
+                <div class="input-area" id="phone">
+                    {{ form.phone }}
+                </div>
+                <div class="input-area" id="email">
+                    {{ form.email }}
+                </div>
+                <div class="input-area" id="password">
+                    {{ form.password }}
+                </div>
+                <div class="input-area" id="retry_password">
+                    {{ form.retry_password }}
+                </div>
+                <div class="input-area" id="name">
+                    {{ form.name }}
+                </div>
+                <div class="input-area" id="surname">
+                    {{ form.surname }}
+                </div>
+                <div class="input-area" id="middle_name">
+                    {{ form.middle_name }}
+                </div>
+                <h1 class="passport-text">Паспортные данные</h1>
+                <div class="passport-date">
+                    <div class="input-area passport-serial" id="passport_serial">
+                        {{ form.passport_serial }}
+                    </div>
+                    <div class="input-area passport-number" id="passport_number">
+                        {{ form.passport_number }}
+                    </div>
+                </div>
+                <div class="data-area">
+                    <h2 class="data-text">Дата выдачи</h2>
+                    <div class="data-inputs" id="passport_issue_date">
+                        <div class="input-area data-day">
+                            {{ form.passport_issue_date }}
+                        </div>
+                    </div>
+                </div>
+                <div class="input-area" id="passport_issuer">
+                    {{ form.passport_issuer }}
+                </div>
+                <div class="data-area">
+                    <h2 class="data-text">Дата рождения</h2>
+                    <div class="data-inputs">
+                        <div class="input-area data-day" id="birth_date">
+                            {{ form.birth_date }}
+                        </div>
+                    </div>
+                </div>
+                <p class="error" id="error"></p>
+                <div class="button-container">
+                    <button class="registration-button" id="registration-button" type="submit">Регистрация</button>
+                    <a class="link" href="http://127.0.0.1:8000/login">Вход</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+
+    <script src="{% static 'login/js/registration.js' %}"></script>
+    <script src="{% static 'login/js/script.js' %}"></script>
+    <script src="{% static 'js/start_back.js' %}"></script>
+</body>
+</html>

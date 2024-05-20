@@ -1,0 +1,44 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Войдите в аккаунт</title>
+    <link rel="stylesheet" href="{% static 'css/reset.css' %}">
+    <link rel="stylesheet" href="{% static 'css/normalize.css' %}">
+    <link rel="stylesheet" href="{% static 'css/start_back.css' %}">
+    <link rel="stylesheet" href="{% static 'login/css/style.css' %}">
+</head>
+<body>
+    <div class="area">
+        <h1>RaccoonBank</h1>
+        <img class="logo" src="{% static 'images/logo.png' %}" alt="logo">
+        <div class="login-area">
+            <h1 class="login-margin">Вход</h1>
+            <form method="post" id="login-form">
+                {% csrf_token %}
+                <div class="input-area" id="phone">
+                    {{ form.phone }}
+                </div>
+                <div class="input-area input-area-last input-area-password" id="password">
+                    {{ form.password }}
+                    <button class="eye" id="eye" type="button" type="button">
+                        <img class="eye-png" src="{% static 'login/images/view.png' %}" alt="eye">
+                    </button>
+                </div>
+                <p class="error" id="error"></p>
+                <div class="button-container">
+                    <button class="login-button" type="submit">Войти</button>
+                    <a class="link" href="http://127.0.0.1:8000/login/new/">Регистрация</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+
+    <script src="{% static 'login/js/script.js' %}"></script>
+    <script src="{% static 'js/start_back.js' %}"></script>
+</body>
+</html>

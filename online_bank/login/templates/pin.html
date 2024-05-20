@@ -1,0 +1,47 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Подтверждение</title>
+    <link rel="stylesheet" href="{% static 'css/reset.css' %}">
+    <link rel="stylesheet" href="{% static 'css/normalize.css' %}">
+    <link rel="stylesheet" href="{% static 'css/start_back.css' %}">
+    <link rel="stylesheet" href="{% static 'login/css/style.css' %}">
+</head>
+<body>
+    <div class="area">
+        <h1>RaccoonBank</h1>
+        <img class="logo" src="{% static 'images/logo.png' %}" alt="logo">
+        <div class="login-area pin-area">
+                <form method="post" id="pin-form">
+                    <h1 class="pin-text">{{ form.text }}</h1>
+                    {% csrf_token %}
+                    <div class="inputs-pin">
+                        <div class="input-area-pin" id="one">
+                            {{ form.one }}
+                        </div>
+                        <div class="input-area-pin" id="two">
+                            {{ form.two }}
+                        </div>
+                        <div class="input-area-pin" id="three">
+                            {{ form.three }}
+                        </div>
+                        <div class="input-area-pin input-area-pin-last" id="four">
+                            {{ form.four }}
+                        </div>
+                    </div>
+                    <p class="error" id="error"></p>
+                    <div class="button-container-pin">
+                        <button class="pin-button" id="pin-button" type="submit">Продолжить</button>
+                    </div>
+                </form>
+        </div>
+    </div>
+    <script src="{% static 'login/js/pin.js' %}"></script>
+    <script src="{% static 'login/js/script.js' %}"></script>
+    <script src="{% static 'js/start_back.js' %}"></script>
+</body>
+</html>    

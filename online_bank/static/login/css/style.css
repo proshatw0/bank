@@ -1,0 +1,246 @@
+body {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    overflow: hidden;
+}
+
+.registration-body{
+    overflow: scroll;
+}
+
+.area{
+    width: 50%;
+    max-width: 600px;
+    min-width: 300px;
+    height: 100%;
+    padding-top: 50px;
+}
+
+h1{
+    text-align: center;
+    font-size: 48px;
+    color: #000;
+    margin-bottom: 40px;
+    margin-top: 0;
+}
+
+.login-margin{
+    margin-top: 0;
+    margin-bottom: 10px;
+}
+
+.logo{
+    width: 120px;
+    height: 120px;
+    padding-left: calc((100% - 120px) / 2);
+    margin-bottom: 20px;
+}
+
+.login-area{
+    width: calc(100% - 60px);
+    height: 300px;
+    padding: 20px 30px;
+    background-color: #F6F6F6;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.25);
+}
+
+.pin-area{
+    height: 280px;
+}
+
+.registration-area{
+    height: 1020px;
+    margin-bottom: 100px;
+}
+
+.input-area{
+    width: calc(100% - 40px);
+    height: 28px;
+    border-radius: 10px;
+    background-color: #FFFFFF;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.25);
+    padding: 10px 20px;
+    margin-bottom: 20px;
+}
+
+.input-area-last{
+    margin-bottom: 30px;
+}
+
+.input-area-password{
+    display: flex;
+    width: calc(100% - 40px);
+}
+
+input{
+    width: 100%;
+    font-size: 24px;
+    border: none;
+    outline: none;
+}
+
+.password{
+    width: calc(100% - 28px);
+}
+
+.eye{
+    background-color: #FFFFFF;
+    border: none;
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    margin: 0;
+}
+
+.eye-png{
+    width: 28px;
+    height: 28px;
+}
+
+.passport-text{
+    font-size: 28px;
+    margin-bottom: 20px;
+    text-align: left;
+}
+
+.passport-date {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+}
+
+.passport-serial {
+    width: calc(35% - 20px); 
+    margin-right: 10px; 
+}
+
+.passport-number {
+    width: calc(50% - 20px); 
+}
+
+.data-area{
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+.data-inputs{
+    display: flex;
+    justify-content: right;
+    width: 50%;
+    min-width: 100px;
+    max-width: 250px;
+}
+
+.data-day{
+    min-width: 60px;
+    max-width: 250px;
+    margin: 0;
+}
+
+.data-text{
+    font-size: 24px;
+    text-align: left;
+    margin: auto 0;
+    margin-right: 10px;
+
+}
+
+.button-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.login-button,
+.registration-button {
+    background-color: #FFCC33;
+    width: 30%;
+    height: 48px;
+    max-width: 200px;
+    min-width: 100px;
+    font-size: 24px;
+    border: none;
+    border-radius: 10px;
+    transition: 0.5s ease;
+}
+
+.registration-button{
+    min-width: 150px;
+}
+
+.login-button:hover,
+.registration-button:hover{
+    background-color: #cba32a;
+}
+
+.link {
+    color: #4296FF;
+    font-size: 20px;
+    text-decoration: none;
+}
+
+.error{
+    text-align: center;
+    color: #900020;
+    font-size: 22px;
+}
+
+.inputs-pin{
+    display: flex;
+    justify-content: center;
+    padding: 0 10%;
+    width: 80%;
+    margin-bottom: 30px;
+}
+
+.input-area-pin{
+    background-color: #FFFFFF;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.25);
+    border-radius: 10px;
+    width: 12%;
+    padding: 5px;
+    margin-right: 20px;
+    max-width: 55px;
+    min-width: 40px;
+    height: 95px;
+}
+
+.input-area-pin-last{
+    margin: 0;
+}
+
+.pin-text{
+    margin-top: 0;
+    margin-bottom: 10px;
+}
+
+.button-container-pin {
+    display: flex;
+    justify-content: space-between;
+    justify-content: center;
+    align-items: center;
+}
+
+.pin-button{
+    background-color: #FFCC33;
+    width: 30%;
+    height: 48px;
+    max-width: 200px;
+    min-width: 150px;
+    font-size: 24px;
+    border: none;
+    border-radius: 10px;
+    transition: 0.5s ease;
+}
+.input-pin{
+    text-align: center;
+    height: 100%;
+    font-size: 32px;
+}
+.input-pin::selection{
+    background-color: #D9D9D9;
+    border-radius: 10px;
+}

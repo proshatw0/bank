@@ -1,0 +1,31 @@
+.start_back{
+    position: fixed;
+    top: 0;
+    left: 0;
+    display: block;
+    padding-top: 100px;
+    background-color: #FFCC33;
+    height: 100vh;
+    width: 100vw;
+    z-index: 9999;
+}
+
+.start_h1{
+    text-align: center;
+    font-size: 48px;
+    color: #000;
+    margin-bottom: 40px;
+}
+
+.start_logo{
+    width: 200px;
+    height: 200px;
+    padding-left: calc((100% - 200px) / 2);
+    margin-bottom: 60px;
+}
+
+.start_h2{
+    text-align: center;
+    font-size: 32px;
+    color: #000;
+}
