@@ -58,3 +58,15 @@ form.addEventListener('submit', function(event) {
         console.error('Error:', error);
     });
 });
+
+function checkRedirect() {
+    fetch('/login/check-redirect/')
+        .then(response => response.json())
+        .then(data => {
+            if (data.redirect_url) {
+                window.location.href = data.redirect_url;
+            }
+        });
+}
+
+setInterval(checkRedirect, 5000);

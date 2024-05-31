@@ -1,15 +1,52 @@
 from datetime import date, timedelta
+import json
+from django.contrib.auth import logout
+import random
+import string
 from django.utils import timezone
 import re
 from django.http import JsonResponse
 from django.shortcuts import redirect, render
-from django.contrib.auth.decorators import login_required
-from django.contrib.auth.models import AnonymousUser
-
+from django.contrib.sessions.models import Session
+from django.shortcuts import get_object_or_404
 
 from login.forms import LoginForm, PinCode, RegistrationForm
 from login.models import CustomUser
 from django.contrib.auth import authenticate, login
+from django.views.decorators.csrf import csrf_exempt
+import requests
+
+def check_redirect(request):
+    redirect_url = request.session.get('redirect_url')
+    return JsonResponse({'redirect_url': redirect_url})
+
+def update_user_sessions(user_id, key, value):
+    sessions = Session.objects.filter(expire_date__gte=timezone.now())
+    for session in sessions:
+        data = session.get_decoded()
+        if str(user_id) == str(data.get('_auth_user_id')):
+            data[key] = value
+            session.session_data = Session.objects.encode(data)
+            session.save()
+
+def generate_unique_code(num):
+    code = ''.join(random.choices(string.digits, k=num))
+    return code
+
+@csrf_exempt
+def local_view(request):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        user_id = data.get('user_id')
+        if user_id:
+            user = get_object_or_404(CustomUser, id=user_id)
+            if user:
+                user.telegram = True
+                user.save()
+            update_user_sessions(user_id, 'redirect_url', '/your_bank')
+            return JsonResponse({'status': 'success'})
+        return JsonResponse({'status': 'error', 'message': 'User ID not provided'}, status=400)
+    return JsonResponse({'status': 'error', 'message': 'Invalid request method'}, status=405)
 
 def registration_view(request):
     if request.user.is_authenticated:
@@ -92,23 +129,62 @@ def pin_view(request):
                 return JsonResponse({'success':False, 'one':arr[0], 'two':arr[1], 'three':arr[2], 'four':arr[3]})
             else:
                 user = request.user
-                if user.pin == None:
-                    user.pin = one + two + three + four
-                    user.save()
+                if user.pin == None or user.pin != one + two + three + four:
+                    request.user.input_attempts +=1
+                    print(request.user.input_attempts)
+                    request.user.save()
+                    
+                    if request.user.input_attempts == 5:
+                        request.user.pin = None
+                        request.user.input_attempts = 0
+                        request.user.save()
+                        logout(request)
+                        return JsonResponse({'success':True, 'next_url': "/login"})
+                    return JsonResponse({'success':False, 'one':True, 'two':True, 'three':True, 'four':True})
                 else:
-                    if user.pin != one + two + three + four:
-                        return JsonResponse({'success':False, 'one':True, 'two':True, 'three':True, 'four':True})
-                return JsonResponse({'success':True, 'next_url': "/your_bank"})
+                    request.user.input_attempts = 0
+                    request.user.pin = None
+                    request.user.save()
+                    return JsonResponse({'success':True, 'next_url': "/your_bank"})
+    user_id = request.user.id
+    headers = {
+        'Content-Type': 'application/json'
+    }
+    if request.user.telegram == True:
+        pin = generate_unique_code(4)
+        request.user.pin = pin
+        request.user.save()
 
-
-
-    form = PinCode()
-    if request.user.pin == None:
-        form.text = "Придумайте код"
-    elif request.user.pin != None:
+        form = PinCode()
         form.text = "Введите код"
-    
-    return render(request, 'pin.html', {'form': form})
+        data = {
+        'number': pin,
+        'user_id': user_id
+        }
+        response = requests.post('http://localhost:5000/send_message', json=data, headers=headers)
+
+        if response.status_code == 200:
+            return render(request, 'pin.html', {'form': form})
+        else:
+            return JsonResponse({'error': 'Failed to send message'}, status=500)
+    else:
+        pin = generate_unique_code(8)
+        context = {
+            'form': {
+                'text': 'Введите код в телеграм-бот',
+                'pin': pin
+            }
+        }
+        data = {
+        'number': pin,
+        'user_id': user_id
+        }
+        response = requests.post('http://localhost:5000/send_message', json=data, headers=headers)
+
+        if response.status_code == 200:
+            return render(request, 'pin.html', context)
+        else:
+            return JsonResponse({'error': 'Failed to send message'}, status=500)
 
 def login_view(request):
     if request.user.is_authenticated:

@@ -83,13 +83,15 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     email = models.CharField(max_length=50, unique=True, blank=False, verbose_name='Электронная почта')
     password = models.CharField(max_length=128, blank=False, verbose_name='Пароль')
     pin = models.CharField(max_length=4, blank=False, null=True, verbose_name='ПИН-КОД')
+    telegram = models.BooleanField(default=False, verbose_name='Telegram')
+    input_attempts = models.IntegerField(default=0, verbose_name='Количество вводов')
 
     passport_series = models.CharField(max_length=4, blank=False, verbose_name='Серия паспорта')
     passport_number = models.CharField(max_length=6, blank=False, verbose_name='Номер паспорта')
     birth_date = models.DateField(blank=False, null=False, verbose_name='Дата рождения')
     passport_issue_date = models.DateField(blank=False, null=False, verbose_name='Дата выдачи паспорта')
     passport_issuer = models.CharField(max_length=100, blank=False, verbose_name='Кем выдан паспорт')
-
+    
     is_staff = models.BooleanField(default=False)
     is_superuser = models.BooleanField(default=False)
 

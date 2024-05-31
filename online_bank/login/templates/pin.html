@@ -20,18 +20,22 @@
                     <h1 class="pin-text">{{ form.text }}</h1>
                     {% csrf_token %}
                     <div class="inputs-pin">
-                        <div class="input-area-pin" id="one">
-                            {{ form.one }}
-                        </div>
-                        <div class="input-area-pin" id="two">
-                            {{ form.two }}
-                        </div>
-                        <div class="input-area-pin" id="three">
-                            {{ form.three }}
-                        </div>
-                        <div class="input-area-pin input-area-pin-last" id="four">
-                            {{ form.four }}
-                        </div>
+                        {% if form.pin %}
+                            <h1 class="pin-value">{{ form.pin }}</h1>
+                        {% else %}
+                            <div class="input-area-pin" id="one">
+                                {{ form.one }}
+                            </div>
+                            <div class="input-area-pin" id="two">
+                                {{ form.two }}
+                            </div>
+                            <div class="input-area-pin" id="three">
+                                {{ form.three }}
+                            </div>
+                            <div class="input-area-pin input-area-pin-last" id="four">
+                                {{ form.four }}
+                            </div>
+                        {% endif %}
                     </div>
                     <p class="error" id="error"></p>
                     <div class="button-container-pin">
