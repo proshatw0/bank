@@ -1,0 +1,4 @@
+[ZoneTransfer]
+ZoneId=3
+ReferrerUrl=https://app.qr-code-generator.com/
+HostUrl=https://api.qr-code-generator.com/v1/create?access-token=FBDfkUSwvn1GPT3aIctwAnpW-rv5C_dAOGb6FAQ2XIP5jkLQLfGJnba8pk9yhcNT&_lang=en&qr_code_id=66794888&image_format=PNG&image_width=3000&background_color=%23ffffff&foreground_color=%23000000&frame_color=%23000000&frame_name=no-frame&account_frame_id=-1&frame_text=CLICK%20ME&frame_text_color=%23FFFFFF&frame_text_alignment=&frame_text_font=&frame_icon_name=&marker_left_template=version17&marker_left_inner_color=%23000000&marker_left_outer_color=%23000000&marker_right_template=version17&marker_right_inner_color=%23000000&marker_right_outer_color=%23000000&marker_bottom_template=version17&marker_bottom_inner_color=%23000000&marker_bottom_outer_color=%23000000&qr_code_logo=account35294283%2Flogo%2F89a96ea33bb9799609167573cc1174ff.png&download=1&error_correction=&qr_code_pattern=rounded-2&rnd=1717241831172

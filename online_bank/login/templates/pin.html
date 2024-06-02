@@ -13,8 +13,9 @@
 </head>
 <body>
     <div class="area">
-        <h1>RaccoonBank</h1>
-        <img class="logo" src="{% static 'images/logo.png' %}" alt="logo">
+        <a href="https://t.me/RaccoonBank_bot" class="qr_link" target="_blank">
+            <img class="qr" src="{% static 'images/qr.png' %}" alt="logo">
+        </a>
         <div class="login-area pin-area">
                 <form method="post" id="pin-form">
                     <h1 class="pin-text">{{ form.text }}</h1>
@@ -22,6 +23,7 @@
                     <div class="inputs-pin">
                         {% if form.pin %}
                             <h1 class="pin-value">{{ form.pin }}</h1>
+                            </div>
                         {% else %}
                             <div class="input-area-pin" id="one">
                                 {{ form.one }}
@@ -35,12 +37,12 @@
                             <div class="input-area-pin input-area-pin-last" id="four">
                                 {{ form.four }}
                             </div>
+                            </div>
+                            <p class="error" id="error"></p>
+                                <div class="button-container-pin">
+                            <button class="pin-button" id="pin-button" type="submit">Продолжить</button>
+                            </div>    
                         {% endif %}
-                    </div>
-                    <p class="error" id="error"></p>
-                    <div class="button-container-pin">
-                        <button class="pin-button" id="pin-button" type="submit">Продолжить</button>
-                    </div>
                 </form>
         </div>
     </div>

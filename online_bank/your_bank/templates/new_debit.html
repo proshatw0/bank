@@ -5,11 +5,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ваш банк</title>
+    <title>Дебитовая карта</title>
     <link rel="stylesheet" href="{% static 'css/reset.css' %}">
     <link rel="stylesheet" href="{% static 'css/normalize.css' %}">
     <link rel="stylesheet" href="{% static 'css/start_back.css' %}">
     <link rel="stylesheet" href="{% static 'your_bank/css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'your_bank/css/new_account.css' %}">
 </head>
 <body>
     <div class="header">
@@ -41,83 +42,40 @@
             </div>
         </div>
         <div class="link-container">
-            <p class="link active-link">Главная</p>
+            <a href="/your_bank/" class="link active-link">Главная</a>
             <a href="" class="link">Операции</a>
             <a href="" class="link">Платежи</a>
             <a href="" class="link">Обращения</a>
         </div>
     </div>
     <div class="main">
-        <div class="main-area">
-            <div class="debit-cards">
-                <h2 class="debit-text">Счета</h2>
-                <div class="debit-card-container">
-                    {% for debit_card in debit_cards %}
-                        <button class="debit-card">
-                            <div class="circle debit-circle"></div>
-                            <h2 class="balance">{{ debit_card.balance }}</h2>
-                            <div class="card-info">
-                                <p class="type-card">{{ debit_card.type_card }}</p>
-                                <p class="number-card">{{ debit_card.number_card }}</p>
-                            </div>
-                        </button>
-                    {% endfor %}
+        <div class="main-area-new">
+            <div class="type_account">
+                <h1 class="type_text">Выберите тип счета</h1>
+                <div class="link-container">
+                    <p class="link active-link main-link">Дебетовая карта</p>
+                    <a href="/your_bank/new-deposite/" class="link main-link">Вклад</a>
                 </div>
-                <a class="add-card" id="add-card" href="new-debit-card/">
-                    <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <g filter="url(#filter0_f_224_3)">
-                            <rect x="4" y="4" width="40" height="40" rx="20" fill="black" fill-opacity="0.22"/>
-                        </g>
-                        <rect x="4" y="4" width="39.3443" height="38.0952" rx="19.0476" fill="#428BF9" fill-opacity="0.74902"/>
-                        <path d="M12 24H36" stroke="white" stroke-width="4" stroke-linecap="round"/>
-                        <path d="M24 36V12" stroke="white" stroke-width="4" stroke-linecap="round"/>
-                        <defs>
-                            <filter id="filter0_f_224_3" x="0" y="0" width="48" height="48" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
-                                <feFlood flood-opacity="0" result="BackgroundImageFix"/>
-                                <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"/>
-                                <feGaussianBlur stdDeviation="2" result="effect1_foregroundBlur_224_3"/>
-                            </filter>
-                        </defs>
-                    </svg>
-                </a>
             </div>
-        
-            <div class="deposit-cards">
-                <h2 class="deposit-text">Вклады</h2>
-                <div class="deposit-card-container">
-                    {% for deposit in deposits %}
-                        <button class="deposit-card">
-                            <div class="circle deposit-circle"></div>
-                            <h2 class="balance">{{ deposit.balance }}</h2>
-                            <div class="card-info">
-                                <p class="type-card">{{ deposit.type_deposit }}</p>
-                                <p class="number-card">{{ deposit.interest_rate }}</p>
-                            </div>
-                        </button>
+            <form class="data-debit" method="POST" action="/your_bank/new-debit-card/">
+                {% csrf_token %}
+                <select name="subscription" id="card-select" required>
+                    {% for debit in debits %}
+                        <option value="{{ debit }}">{{ debit }}</option>
                     {% endfor %}
-                </div>
-                <a class="add-card" id="add-card" href="new-deposite/">
-                    <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <g filter="url(#filter0_f_224_3)">
-                            <rect x="4" y="4" width="40" height="40" rx="20" fill="black" fill-opacity="0.22"/>
-                        </g>
-                        <rect x="4" y="4" width="39.3443" height="38.0952" rx="19.0476" fill="#428BF9" fill-opacity="0.74902"/>
-                        <path d="M12 24H36" stroke="white" stroke-width="4" stroke-linecap="round"/>
-                        <path d="M24 36V12" stroke="white" stroke-width="4" stroke-linecap="round"/>
-                        <defs>
-                            <filter id="filter0_f_224_3" x="0" y="0" width="48" height="48" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
-                                <feFlood flood-opacity="0" result="BackgroundImageFix"/>
-                                <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"/>
-                                <feGaussianBlur stdDeviation="2" result="effect1_foregroundBlur_224_3"/>
-                            </filter>
-                        </defs>
-                    </svg>
-                </a>
-            </div>
-        </div>
+                </select>
+                <input type="text" name="pin" id="pin" placeholder="PIN-код из 3 цифр" required pattern="\d{3}" maxlength="3" />
+                <div class="description" id="cost">Ежемесячное обслуживание: {{ cost }} ₽</div>
+                <div class="description" id="limit">Лимиты переводов: нет</div>
+                <button type="submit">Открыть</button>
+                <p class="error" id="error"></p>
+            </form>
     </div>
-
+    <div id="loading-screen">
+        <video src="{% static 'your_bank/video/raccoon.MOV' %}" autoplay loop muted></video>
+    </div>
     <script src="{% static 'your_bank/js/script.js' %}"></script>
+    <script src="{% static 'your_bank/js/new_amount.js' %}"></script>
     <script src="{% static 'js/start_back.js' %}"></script>
 </body>
 </html>

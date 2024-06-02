@@ -95,9 +95,13 @@ def registration_view(request):
                 return JsonResponse({'success':False, 'error': "Неверная дата рождения", 'error_elemenet':'birth_date'})
             user = CustomUser.objects.create_user(name=name.capitalize(), surname=surname.capitalize(), middle_name=middle_name.capitalize(), phone=phone, passport_serial=passport_serial, passport_number=passport_number, birth_date=birth_date, passport_issue_date=passport_issue_date, passport_issuer=passport_issuer, password=password,email=email)
             if user == 'Этот номер телефона или почта уже зарегистрированы':
-                return JsonResponse({'success':False, 'error': "Этот номер телефона или почта уже зарегистрированы", 'error_elemenet':'phone'})
+                return JsonResponse({'success':False, 'error': "Этот номер телефона или почта уже зарегистрированы", 'error_elemenet':'phone', 'or_error_elemenet':'email'})
             else:
-                return JsonResponse({'success':True, 'next_url': "pin-code/"})
+                login(request, user)
+                user.is_active = True
+                CustomUser.objects.filter(pk=user.pk).update(last_login=timezone.now())
+                user.save()
+                return JsonResponse({'success':True, 'next_url': "/login/pin-code/"})
         else:
             pass
     else:

@@ -1,0 +1,87 @@
+.type_account{
+    width: calc(100% - 80px);
+    height: 95px;
+    background-color: #F6F6F6;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.25);
+    padding: 0 40px;
+    padding-top: 5px;
+
+    margin-bottom: 20px;
+}
+
+.type_text{
+    font-size: 24px;
+    width: 100%;
+    border-bottom: 2px solid #898989;
+}
+
+.main-link{
+    padding: 0;
+}
+
+.main-area-new {
+    width: 86%;
+    height: 100%;
+    display: block;
+}
+
+.data-debit {
+    width: 72%;
+    height: 370px;
+    background-color: #F6F6F6;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.25);
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    box-sizing: border-box;
+}
+.data-debit select, .data-debit input {
+    padding: 10px;
+    margin: 10px 0;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    box-shadow:  0 0 10px rgba(0, 0, 0, 0.25);
+}
+.data-debit .description {
+    font-size: 16px;
+    margin: 10px 0;
+}
+.data-debit button {
+    width: 200px;
+    height: 50px;
+    margin-left: calc(50% - 120px);
+    background-color: #FFCC33;
+    border: none;
+    border-radius: 5px;
+    font-size: 24px;
+    cursor: pointer;
+}
+.data-debit button:hover {
+    background-color: #CBA32A;
+}
+
+#loading-screen {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #000;
+    z-index: 9999;
+    justify-content: center;
+    align-items: center;
+}
+#loading-screen video {
+    width: 40vw;
+    height: 40vw;
+}
+
+.error{
+    text-align: center;
+    color: #900020;
+    font-size: 22px;
+}
