@@ -5,12 +5,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Депозит</title>
+    <title>Между своими счетами</title>
     <link rel="stylesheet" href="{% static 'css/reset.css' %}">
     <link rel="stylesheet" href="{% static 'css/normalize.css' %}">
     <link rel="stylesheet" href="{% static 'css/start_back.css' %}">
     <link rel="stylesheet" href="{% static 'your_bank/css/style.css' %}">
-    <link rel="stylesheet" href="{% static 'your_bank/css/new_account.css' %}">
+    <link rel="stylesheet" href="{% static 'your_bank/css/transfers.css' %}">
 </head>
 <body>
     <div class="header">
@@ -42,40 +42,68 @@
             </div>
         </div>
         <div class="link-container">
-            <a href="/your_bank/" class="link active-link">Главная</a>
+            <a href="/your_bank/" class="link">Главная</a>
             <a href="" class="link">Операции</a>
-            <a href="/your_bank/transfers/" class="link">Платежи</a>
+            <a href="/your_bank/transfers/" class="link active-link">Платежи</a>
             <a href="" class="link">Обращения</a>
         </div>
     </div>
     <div class="main">
-        <div class="main-area-new">
-            <div class="type_account">
-                <h1 class="type_text">Выберите тип счета</h1>
-                <div class="link-container">
-                    <a href="/your_bank/new-debit-card/" class="link main-link">Дебетовая карта</a>
-                    <p class="link main-link active-link">Вклад</p>
-                </div>
+        <div class="main-area">
+            <div class="transfers-debit-area">
+                <h1 class="transfer-phone-title">Перевести по номеру карты</h1>
+                <form class="data-debit" method="POST" action="/your_bank/transfers-own/">
+                    {% csrf_token %}
+                    <select name="subscription1" id="card-select1" required>
+                        {% for card in card_info %}
+                            <option value="{{ card.name }} {{ card.number }}  -  {{ card.balance }}">
+                                {{ card.name }} {{ card.number }}  -  {{ card.balance }}
+                            </option>
+                        {% endfor %}
+                        {% for deposit in deposits %}
+                            <option value="{{ deposit.name }} {{ deposit.number }}  -  {{ deposit.balance }}">
+                                {{ deposit.name }} {{ deposit.number }}  -  {{ deposit.balance }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                    <select name="subscription2" id="card-select2" required>
+                        {% for card in card_info %}
+                            <option value="{{ card.name }} {{ card.number }}  -  {{ card.balance }}">
+                                {{ card.name }} {{ card.number }}  -  {{ card.balance }}
+                            </option>
+                        {% endfor %}
+                        {% for deposit in deposits %}
+                            <option value="{{ deposit.name }} {{ deposit.number }}  -  {{ deposit.balance }}">
+                                {{ deposit.name }} {{ deposit.number }}  -  {{ deposit.balance }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                    <input type="text" name="cost" id="cost" placeholder="Сумма от 10 ₽" maxlength="13" />
+                    <button type="submit">Перевести</button>
+                    <p class="error" id="error"></p>
+                </form>
             </div>
-            <form class="data-debit" method="POST" action="/your_bank/new-deposite/">
-                {% csrf_token %}
-                <select name="subscription" id="card-select" required>
-                    {% for deposite in deposites %}
-                        <option value="{{ deposite }}">{{ deposite }}</option>
-                    {% endfor %}
-                </select>
-                <div class="description" id="procent">Процентная ставка: {{ procent }} %</div>
-                <div class="description" id="period">Период: {{ period }} месяцев</div>
-                <div class="description" id="close">Возможность досрочного закрытия: {{ close }}</div>
-                <button type="submit">Открыть</button>
-                <p class="error" id="error"></p>
-            </form>
+        </div>
     </div>
     <div id="loading-screen">
         <video src="{% static 'your_bank/video/raccoon.MOV' %}" autoplay loop muted></video>
     </div>
-    <script src="{% static 'your_bank/js/script.js' %}"></script>
-    <script src="{% static 'your_bank/js/new_deposite.js' %}"></script>
-    <script src="{% static 'js/start_back.js' %}"></script>
+
+    <div id="transactionModal" class="modal">
+        <div class="modal-content">
+            <h2 id="modalTitle">Перевод исполнен</h2>
+            <p class="account-info" id="accountInfo"></p>
+            <p class="amount-info" id="amountInfo"></p>
+            <p class="transaction-amount" id="transactionAmount"></p>
+            <div class="bank-info" id="bankInfo">
+                <div class="bank-logo" id="bankLogo">RaccoonBank</div>
+                <div class="card-number" id="cardNumber"></div>
+            </div>
+            <a href="/your_bank/" class="done-button" id="doneButton" onclick="closeModal()">Готово</a>
+        </div>
+    </div>
+      <script src="{% static 'your_bank/js/script.js' %}"></script>
+      <script src="{% static 'your_bank/js/transfers_own.js' %}"></script>
+      <script src="{% static 'js/start_back.js' %}"></script>
 </body>
 </html>

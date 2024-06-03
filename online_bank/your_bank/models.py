@@ -1,7 +1,9 @@
 import random
-from django.db import models
+from django.db import models, transaction
 from datetime import datetime, timedelta
+from django.forms import ValidationError
 from django.utils import timezone
+from django.db import transaction as db_transaction
 
 from login.models import CustomUser
 
@@ -31,6 +33,14 @@ class Account(models.Model):
         try:
             return self.balance
         except:
+            return None
+        
+    @classmethod
+    def get_balance_by_account_number(cls, account_number):
+        try:
+            account = cls.objects.get(account_number=account_number)
+            return account.balance
+        except cls.DoesNotExist:
             return None
         
     def deposit(self, amount):
@@ -159,6 +169,14 @@ class DebitCard(models.Model):
     def close_card(self):
         self.delete()
 
+    @classmethod
+    def get_account_number_by_card_number(cls, card_number):
+        try:
+            card = cls.objects.get(card_number=card_number)
+            return card.account.account_number
+        except cls.DoesNotExist:
+            return None
+
 class DepositCondition(models.Model):
     name = models.CharField(max_length=100, verbose_name='Название условия')
     interest_rate = models.DecimalField(max_digits=4, decimal_places=2, verbose_name='Процентная ставка')
@@ -245,3 +263,118 @@ class Deposit(models.Model):
     def get_all_deposits_info(cls, user_id):
         deposits = cls.objects.filter(account__user_id=user_id)
         return [deposit.get_deposit_info() for deposit in deposits]
+    
+
+class BaseTransaction(models.Model):
+    id = models.AutoField(primary_key=True, verbose_name='ID транзакции')
+    timestamp = models.DateTimeField(default=timezone.now, verbose_name='Время транзакции')
+    description = models.CharField(max_length=255, null=True, blank=True, verbose_name='Описание')
+
+    class Meta:
+        abstract = True
+
+class Transaction(BaseTransaction):
+    from_account = models.ForeignKey(Account, on_delete=models.CASCADE, related_name='outgoing_transactions', verbose_name='Счёт отправителя')
+    to_account = models.ForeignKey(Account, on_delete=models.CASCADE, related_name='incoming_transactions', verbose_name='Счёт получателя')
+    amount = models.DecimalField(max_digits=10, decimal_places=2, verbose_name='Сумма')
+
+    def __str__(self):
+        return f"Transaction from {self.from_account} to {self.to_account} for {self.amount}"
+
+    @classmethod
+    def create_transaction(cls, user, from_account_number, to_account_number, amount, description=None):
+        try:
+            from_account = Account.objects.get(account_number=from_account_number)
+            to_account = Account.objects.get(account_number=to_account_number)
+        except Account.DoesNotExist:
+            return "One or both of the accounts do not exist."
+        if from_account.user != user:
+            return "The sender's account does not belong to the user."
+
+        if from_account.balance < amount:
+            return "Insufficient funds for the transaction"
+
+        with transaction.atomic():
+            from_account.balance -= amount
+            from_account.save()
+            to_account.balance += amount
+            to_account.save()
+
+            transaction = cls.objects.create(
+                from_account=from_account,
+                to_account=to_account,
+                amount=amount,
+                description=description
+            )
+
+        return transaction
+    
+    def __str__(self):
+        return f"Transaction from {self.from_account} to {self.to_account} for {self.amount}"
+
+    @classmethod
+    def create_transaction_own(cls, user, from_account_number, to_account_number, amount, description=None):
+        try:
+            from_account = Account.objects.get(account_number=from_account_number)
+            to_account = Account.objects.get(account_number=to_account_number)
+        except Account.DoesNotExist:
+            return "One or both of the accounts do not exist."
+
+        if from_account.user != user or to_account.user != user:
+            return "Both accounts must belong to the same user."
+
+        if from_account.balance < amount:
+            return "Insufficient funds for the transaction"
+
+        with db_transaction.atomic():
+            from_account.balance -= amount
+            from_account.save()
+            to_account.balance += amount
+            to_account.save()
+
+            transaction_obj = cls.objects.create(
+                from_account=from_account,
+                to_account=to_account,
+                amount=amount,
+                description=description
+            )
+
+        return transaction_obj
+class ATMTransaction(BaseTransaction):
+    account = models.ForeignKey(Account, on_delete=models.CASCADE, verbose_name='Счёт')
+    amount = models.DecimalField(max_digits=10, decimal_places=2, verbose_name='Сумма')
+    transaction_type = models.CharField(max_length=10, choices=[('deposit', 'Deposit'), ('withdrawal', 'Withdrawal')], verbose_name='Тип транзакции')
+
+    def __str__(self):
+        return f"ATMTransaction {self.transaction_type} for {self.amount} on account {self.account}"
+
+    @classmethod
+    def create_atm_transaction(cls, user, account_number, amount, transaction_type, description=None):
+        try:
+            account = Account.objects.get(account_number=account_number)
+        except Account.DoesNotExist:
+            raise ValidationError("The account does not exist.")
+        
+        if account.user != user:
+            raise ValidationError("The account does not belong to the user.")
+        
+        with transaction.atomic():
+            if transaction_type == 'deposit':
+                account.balance += amount
+                account.save()
+            elif transaction_type == 'withdrawal':
+                if account.balance < amount:
+                    raise ValidationError("Insufficient funds for the withdrawal")
+                account.balance -= amount
+                account.save()
+            else:
+                raise ValidationError("Invalid transaction type")
+
+            atm_transaction = cls.objects.create(
+                account=account,
+                amount=amount,
+                transaction_type=transaction_type,
+                description=description
+            )
+
+        return atm_transaction

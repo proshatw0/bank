@@ -76,7 +76,6 @@ document.querySelector('.data-debit').addEventListener('submit', function(event)
 
     setTimeout(() => {
         if (!requestCompleted) {
-            // Продолжать показывать экран загрузки, если запрос еще не завершен
             const checkCompletion = setInterval(() => {
                 if (requestCompleted) {
                     clearInterval(checkCompletion);

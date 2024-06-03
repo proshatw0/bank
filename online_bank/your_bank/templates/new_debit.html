@@ -20,7 +20,7 @@
                 <h1 class="logo-text">RaccoonBank</h1>
             </div>
             <div class="profile-area">
-                <h2 class="name">Кирилл</h2>
+                <h2 class="name">{{ name }}</h2>
                 <button class="profile-button" onclick="toggleDropdown()">
                     <img class="profile-img" src="{% static 'your_bank/images/profile_icon.png' %}" alt="Картинка профиля">
                 </button>
@@ -44,7 +44,7 @@
         <div class="link-container">
             <a href="/your_bank/" class="link active-link">Главная</a>
             <a href="" class="link">Операции</a>
-            <a href="" class="link">Платежи</a>
+            <a href="/your_bank/transfers/" class="link">Платежи</a>
             <a href="" class="link">Обращения</a>
         </div>
     </div>

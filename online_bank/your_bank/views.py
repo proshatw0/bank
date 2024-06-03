@@ -1,13 +1,19 @@
+from decimal import Decimal
 import json
+import re
+from sre_compile import isstring
 from urllib.parse import urlparse
+from django.forms import ValidationError
 from django.shortcuts import render, redirect
 from django.contrib.sessions.models import Session
 from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
-from django.utils.decorators import method_decorator
 from django.http import JsonResponse
+from datetime import timedelta
+from django.utils import timezone
+from django.db.models import Q
 
-from your_bank.models import Account, DebitCard, Deposit, DepositCondition, Subscription
+from your_bank.models import Account, DebitCard, Deposit, DepositCondition, Subscription, Transaction
 
 def remove_field_from_user_sessions(user_id, field_name):
     sessions = Session.objects.filter(expire_date__gte=timezone.now())
@@ -43,7 +49,6 @@ def bank_view(request):
 
     user_id = request.user.id
     deposits_info = Deposit.get_all_deposits_info(user_id)
-    print(deposits_info)  
     formatted_deposits_info = [
         {
             "balance": f"{info['balance']} ₽",
@@ -53,9 +58,8 @@ def bank_view(request):
         for info in deposits_info
     ]
 
-    print(formatted_deposits_info)
-    
     context = {
+        "name": request.user.name,
         "debit_cards": debit_cards,
         "deposits": formatted_deposits_info,
     }
@@ -123,6 +127,7 @@ def new_deposite(request):
             deposites = DepositCondition.get_all_names()
             data = DepositCondition.get_condition_by_name(deposites[0])
             example = {
+                "name": request.user.name,
                 'deposites': deposites,
                 'procent': data['procent'],
                 'period': data['period'],
@@ -158,6 +163,7 @@ def new_debit_view(request):
             debits = Subscription.get_all_subscriptions()
             cost = Subscription.get_monthly_cost_by_name(debits[0])
             example = {
+                "name": request.user.name,
                 'debits': debits,
                 'cost': cost
             }
@@ -177,6 +183,200 @@ def your_bank_view(request):
         
         if parsed_referer.netloc == current_domain:
             return bank_view(request)
+        else:
+            return go_pin(request)
+    else:
+        return go_pin(request)
+    
+def transfers_view(request):
+    referer = request.META.get('HTTP_REFERER')
+    if referer:
+        parsed_referer = urlparse(referer)
+        current_domain = request.get_host()
+        if parsed_referer.netloc == current_domain:
+            example = {
+                "name": request.user.name,
+            }
+
+            return render(request, 'transfers.html', example)
+        else:
+            return go_pin(request)
+    else:
+        return go_pin(request)
+
+def find_account_by_subscription_and_last_four_digits(user, subscription_array):
+    if not subscription_array:
+        raise ValidationError("Subscription array is empty")
+    
+    if DebitCard.objects.filter(subscription__name=subscription_array[0]).exists():
+        user_cards = DebitCard.objects.filter(account__user=user)
+        matching_cards = user_cards.filter(card_number__endswith=subscription_array[1])
+        
+        matching_account_numbers = [card.account.account_number for card in matching_cards]
+        return matching_account_numbers
+    
+    else:
+        user_deposits = Deposit.objects.filter(account__user=user)
+        matching_deposits = user_deposits.filter(account__account_number__endswith=subscription_array[1])
+        
+        matching_account_numbers = [deposit.account.account_number for deposit in matching_deposits]
+        return matching_account_numbers
+    
+def transfers_debit_view(request):
+    referer = request.META.get('HTTP_REFERER')
+    if referer:
+        parsed_referer = urlparse(referer)
+        current_domain = request.get_host()
+        if parsed_referer.netloc == current_domain:
+            if request.method == 'POST':
+                if request.user.is_authenticated:
+                    number_card = request.POST.get('number_card')
+                    subscription = request.POST.get('subscription')
+                    cost = request.POST.get('cost')
+
+                    if len(number_card) != 16 or not number_card.isdigit():
+                        return JsonResponse({'status': 'error', 'message': "Номер карты должен состоять из 16 цифр", 'error_element': 'number_card'}, json_dumps_params={'ensure_ascii': False})
+                    subscription_part = subscription.split(' - ')[0].strip()
+                    subscription_array = subscription_part.split(' ')
+                    result = find_account_by_subscription_and_last_four_digits(request.user, subscription_array)
+                    try:
+                        cost_decimal = Decimal(cost)
+                    except:
+                        return JsonResponse({'status': 'error', 'message': 'Неверный формат суммы. Не более 10 знаков целой части и 2 дробной.'}, json_dumps_params={'ensure_ascii': False})
+
+                    transaction = Transaction.create_transaction(
+                        user=request.user,
+                        from_account_number=result[0],
+                        to_account_number=DebitCard.get_account_number_by_card_number(number_card),
+                        amount=cost_decimal,
+                        description='Transaction description here'
+                    )
+                    if not isinstance(transaction, str):
+                        reques = {
+                            "accountInfo": subscription_array[0],
+                            "amountInfo": f"{Account.get_balance_by_account_number(result[0])+cost_decimal} ₽ -> {Account.get_balance_by_account_number(result[0])} ₽",
+                            "transactionAmount": f"- {cost_decimal} ₽",
+                            "cardNumber": number_card,
+                        }
+                        return JsonResponse({'status': 'success', 'message': reques}, content_type="application/json")
+                    else:
+                        return JsonResponse({'status': 'error', 'message': 'Произошла ошибка при создании транзакции'}, content_type="application/json", json_dumps_params={'ensure_ascii': False})
+                else:
+                    return JsonResponse({'status': 'success', 'message': '/login/'}, status=400, content_type="application/json")
+            debit_cards = DebitCard.objects.filter(account__user_id=request.user.id)
+            card_info = [{
+                'name': f"{card.subscription.name}",
+                'number': card.card_number[-4:],
+                'balance': f"{card.get_balance()} ₽"
+            } for card in debit_cards]
+        
+            deposits = Deposit.objects.filter(account__user_id=request.user.id)
+            deposit_info = []
+
+            for deposit in deposits:
+                if deposit.condition.early_closure_allowed:
+                    deposit_info.append({
+                        'name': f"{deposit.condition.name}",
+                        'number': deposit.account.account_number[-4:],
+                        'balance': f"{deposit.get_balance()} ₽"
+                    })
+                else:
+                    maturity_date = deposit.opening_date + timedelta(days=30 * deposit.condition.period_in_months)
+                    if timezone.now().date() >= maturity_date:
+                        deposit_info.append({
+                            'name': f"{deposit.condition.name}",
+                            'number': deposit.account.account_number[-4:],
+                            'balance': f"{deposit.get_balance()} ₽"
+                        })
+            example = {
+                "card_info": card_info,
+                "deposits": deposit_info,
+                "name": request.user.name,
+            }
+
+            return render(request, 'transfers_debit.html', example)
+        else:
+            return go_pin(request)
+    else:
+        return go_pin(request)
+    
+
+def transfers_own_view(request):
+    referer = request.META.get('HTTP_REFERER')
+    if referer:
+        parsed_referer = urlparse(referer)
+        current_domain = request.get_host()
+        if parsed_referer.netloc == current_domain:
+            if request.method == 'POST':
+                if request.user.is_authenticated:
+                    subscription1 = request.POST.get('subscription1')
+                    subscription2 = request.POST.get('subscription2')
+                    cost = request.POST.get('cost')
+
+                    print(f"Received subscription1: {subscription1}")
+                    print(f"Received subscription2: {subscription2}")
+                    print(f"Received cost: {cost}")
+
+                    subscription_part1 = subscription1.split(' - ')[0].strip()
+                    subscription_array1 = subscription_part1.split(' ')
+                    subscription_part2 = subscription2.split(' - ')[0].strip()
+                    subscription_array2 = subscription_part2.split(' ')
+                    result1 = find_account_by_subscription_and_last_four_digits(request.user, subscription_array1)
+                    result2 = find_account_by_subscription_and_last_four_digits(request.user, subscription_array2)
+                    
+                    try:
+                        cost_decimal = Decimal(cost)
+                    except:
+                        return JsonResponse({'status': 'error', 'message': 'Неверный формат суммы. Не более 10 знаков целой части и 2 дробной.'}, json_dumps_params={'ensure_ascii': False})
+
+                    transaction = Transaction.create_transaction_own(
+                        request.user, result1[0], result2[0], cost_decimal, "Transfer description"
+                    )
+
+                    if not isinstance(transaction, str):
+                        reques = {
+                            "accountInfo": subscription_array1[0],
+                            "amountInfo": f"{Account.get_balance_by_account_number(result1[0])+cost_decimal} ₽ -> {Account.get_balance_by_account_number(result1[0])} ₽",
+                            "transactionAmount": f"- {cost_decimal} ₽",
+
+                        }
+                        return JsonResponse({'status': 'success', 'message': reques}, content_type="application/json")
+                    else:
+                        return JsonResponse({'status': 'error', 'message': 'Произошла ошибка при создании транзакции'}, content_type="application/json", json_dumps_params={'ensure_ascii': False})
+                else:
+                    return JsonResponse({'status': 'success', 'message': '/login/'}, status=400, content_type="application/json")
+            debit_cards = DebitCard.objects.filter(account__user_id=request.user.id)
+            card_info = [{
+                'name': f"{card.subscription.name}",
+                'number': card.card_number[-4:],
+                'balance': f"{card.get_balance()} ₽"
+            } for card in debit_cards]
+        
+            deposits = Deposit.objects.filter(account__user_id=request.user.id)
+            deposit_info = []
+
+            for deposit in deposits:
+                if deposit.condition.early_closure_allowed:
+                    deposit_info.append({
+                        'name': f"{deposit.condition.name}",
+                        'number': deposit.account.account_number[-4:],
+                        'balance': f"{deposit.get_balance()} ₽"
+                    })
+                else:
+                    maturity_date = deposit.opening_date + timedelta(days=30 * deposit.condition.period_in_months)
+                    if timezone.now().date() >= maturity_date:
+                        deposit_info.append({
+                            'name': f"{deposit.condition.name}",
+                            'number': deposit.account.account_number[-4:],
+                            'balance': f"{deposit.get_balance()} ₽"
+                        })
+            example = {
+                "card_info": card_info,
+                "deposits": deposit_info,
+                "name": request.user.name,
+            }
+
+            return render(request, 'transfers_own.html', example)
         else:
             return go_pin(request)
     else:
