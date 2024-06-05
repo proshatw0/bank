@@ -37,8 +37,30 @@
     align-items: center;
     padding: 10px;
     background-color: white;
-    box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
     border-radius: 10px;
+}
+
+.recipient-area{
+    width: 27%;
+    padding: 20px;
+    height: 360px;
+    background-color: #F6F6F6;
+    box-shadow: 0 0 16px rgba(0, 0, 0, 0.2);
+    border-radius: 10px;
+    margin-right: 20px;
+}
+
+.recipient-p{
+    font-size: 20px;
+    margin-bottom: 10px;
+}
+
+.data-phone{
+    width: 100%;
+    display: flex;
+    align-items: center;
+    background-color: white;
 }
 
 .phone-prefix {

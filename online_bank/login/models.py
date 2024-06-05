@@ -4,10 +4,6 @@ from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, Permis
 class CustomUserManager(BaseUserManager):
     def create_user(self,phone, email, name, surname, middle_name, passport_serial, passport_number, passport_issue_date, passport_issuer, birth_date, password=None, **extra_fields):
         email = self.normalize_email(email)
-        if phone.startswith("8"):
-            phone = "+7" + phone[1:]
-        elif phone.startswith("7"):
-            phone = "+7" + phone[1:]
         user = self.model(name=name, surname=surname, middle_name=middle_name, phone=phone, passport_series=passport_serial, passport_number=passport_number, birth_date=birth_date, passport_issue_date=passport_issue_date, passport_issuer=passport_issuer,  email=email, **extra_fields)
         user.set_password(password)
         try:
@@ -79,7 +75,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     surname = models.CharField(max_length=100, blank=False, verbose_name='Фамилия')
     middle_name = models.CharField(max_length=100, blank=True, null=True, verbose_name='Отчество')
     
-    phone = models.CharField(max_length=15, unique=True, blank=False, verbose_name='Телефон')
+    phone = models.CharField(max_length=10, unique=True, blank=False, verbose_name='Телефон')
     email = models.CharField(max_length=50, unique=True, blank=False, verbose_name='Электронная почта')
     password = models.CharField(max_length=128, blank=False, verbose_name='Пароль')
     pin = models.CharField(max_length=4, blank=False, null=True, verbose_name='ПИН-КОД')
@@ -106,4 +102,9 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
 
     def __str__(self):
         return self.phone
+    
+    def get_short_name(self):
+        initial_name = f"{self.name[0]}." if self.name else ""
+        initial_middle_name = f"{self.middle_name[0]}." if self.middle_name else ""
+        return f"{self.surname} {initial_name}{initial_middle_name}"
 

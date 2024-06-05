@@ -5,7 +5,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Между своими счетами</title>
+    <title>По номеру телефона</title>
     <link rel="stylesheet" href="{% static 'css/reset.css' %}">
     <link rel="stylesheet" href="{% static 'css/normalize.css' %}">
     <link rel="stylesheet" href="{% static 'css/start_back.css' %}">
@@ -42,23 +42,17 @@
     </div>
     <div class="main">
         <div class="main-area">
+            <div class="recipient-area">
+                <h1 class="transfer-phone-title">Получатель</h1>
+                <p class="recipient-p">+7 {{  recipient.phone }}</p>
+                <p class="recipient-p">{{  recipient.name }}</p>
+            </div>
             <div class="transfers-debit-area">
-                <h1 class="transfer-phone-title">Перевести по номеру карты</h1>
-                <form class="data-debit" method="POST" action="/your_bank/transfers-own/">
+                <h1 class="transfer-phone-title">Перевести</h1>
+                <form class="data-debit" method="POST" action="/your_bank/transfers-telephone/{{  recipient.phone }}/">
                     {% csrf_token %}
-                    <select name="subscription1" id="card-select1" required>
-                        {% for card in card_info %}
-                            <option value="{{ card.name }} {{ card.number }}  -  {{ card.balance }}">
-                                {{ card.name }} {{ card.number }}  -  {{ card.balance }}
-                            </option>
-                        {% endfor %}
-                        {% for deposit in deposits %}
-                            <option value="{{ deposit.name }} {{ deposit.number }}  -  {{ deposit.balance }}">
-                                {{ deposit.name }} {{ deposit.number }}  -  {{ deposit.balance }}
-                            </option>
-                        {% endfor %}
-                    </select>
-                    <select name="subscription2" id="card-select2" required>
+                    <input type="hidden" name="phone" id="phone" placeholder="" value="{{  recipient.phone }}"/>
+                    <select name="subscription" id="card-select" required>
                         {% for card in card_info %}
                             <option value="{{ card.name }} {{ card.number }}  -  {{ card.balance }}">
                                 {{ card.name }} {{ card.number }}  -  {{ card.balance }}
@@ -95,7 +89,7 @@
         </div>
     </div>
       <script src="{% static 'your_bank/js/script.js' %}"></script>
-      <script src="{% static 'your_bank/js/transfers_own.js' %}"></script>
+      <script src="{% static 'your_bank/js/transfers_telephone.js' %}"></script>
       <script src="{% static 'js/start_back.js' %}"></script>
 </body>
 </html>

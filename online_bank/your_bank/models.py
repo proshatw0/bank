@@ -10,7 +10,7 @@ from login.models import CustomUser
 class Account(models.Model):
     account_number = models.CharField(max_length=20, primary_key=True, verbose_name='Номер счета')
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, verbose_name='Пользователь')
-    balance = models.DecimalField(max_digits=10, decimal_places=2, default=0, verbose_name='Баланс')
+    balance = models.DecimalField(max_digits=10, decimal_places=2, default=500, verbose_name='Баланс')
 
     def __str__(self):
         return f"Account {self.account_number} for user {self.user.phone}"
@@ -283,6 +283,8 @@ class Transaction(BaseTransaction):
 
     @classmethod
     def create_transaction(cls, user, from_account_number, to_account_number, amount, description=None):
+        if amount <= 0:
+            return "Invalid amount. The transaction amount must be positive."
         try:
             from_account = Account.objects.get(account_number=from_account_number)
             to_account = Account.objects.get(account_number=to_account_number)
@@ -294,20 +296,20 @@ class Transaction(BaseTransaction):
         if from_account.balance < amount:
             return "Insufficient funds for the transaction"
 
-        with transaction.atomic():
+        with db_transaction.atomic():
             from_account.balance -= amount
             from_account.save()
             to_account.balance += amount
             to_account.save()
 
-            transaction = cls.objects.create(
+            transaction_instance = cls.objects.create(
                 from_account=from_account,
                 to_account=to_account,
                 amount=amount,
                 description=description
             )
 
-        return transaction
+        return transaction_instance
     
     def __str__(self):
         return f"Transaction from {self.from_account} to {self.to_account} for {self.amount}"

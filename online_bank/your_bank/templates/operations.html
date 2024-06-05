@@ -9,8 +9,9 @@
     <link rel="stylesheet" href="{% static 'css/reset.css' %}">
     <link rel="stylesheet" href="{% static 'css/normalize.css' %}">
     <link rel="stylesheet" href="{% static 'css/start_back.css' %}">
-    <link rel="stylesheet" href="{% static 'your_bank/css/style.css' %}">
     <link rel="stylesheet" href="{% static 'your_bank/css/new_account.css' %}">
+    <link rel="stylesheet" href="{% static 'your_bank/css/style.css' %}">
+
 </head>
 <body>
     <div class="header">
@@ -35,39 +36,24 @@
             </div>
         </div>
         <div class="link-container">
-            <a href="/your_bank/" class="link active-link">Главная</a>
-            <a href="/your_bank/operations/" class="link">Операции</a>
+            <a href="/your_bank/" class="link">Главная</a>
+            <p href="" class="link active-link">Операции</p>
             <a href="/your_bank/transfers/" class="link">Платежи</a>
         </div>
     </div>
     <div class="main">
         <div class="main-area-new">
-            <div class="type_account">
-                <h1 class="type_text">Выберите тип счета</h1>
-                <div class="link-container">
-                    <p class="link active-link main-link">Дебетовая карта</p>
-                    <a href="/your_bank/new-deposite/" class="link main-link">Вклад</a>
-                </div>
+            <div class="data-debit data-operations" id="transaction">
+                <div class="scroll-container" id="transaction-list"></div>
             </div>
-            <form class="data-debit" method="POST" action="/your_bank/new-debit-card/">
-                {% csrf_token %}
-                <select name="subscription" id="card-select" required>
-                    {% for debit in debits %}
-                        <option value="{{ debit }}">{{ debit }}</option>
-                    {% endfor %}
-                </select>
-                <input type="text" name="pin" id="pin" placeholder="PIN-код из 3 цифр" required pattern="\d{3}" maxlength="3" />
-                <div class="description" id="cost">Ежемесячное обслуживание: {{ cost }} ₽</div>
-                <div class="description" id="limit">Лимиты переводов: нет</div>
-                <button type="submit">Открыть</button>
-                <p class="error" id="error"></p>
-            </form>
+        </div>
     </div>
     <div id="loading-screen">
         <video src="{% static 'your_bank/video/raccoon.MOV' %}" autoplay loop muted></video>
     </div>
+    <script></script>
+    <script src="{% static 'your_bank/js/operations.js' %}"></script>
     <script src="{% static 'your_bank/js/script.js' %}"></script>
-    <script src="{% static 'your_bank/js/new_amount.js' %}"></script>
     <script src="{% static 'js/start_back.js' %}"></script>
 </body>
 </html>
